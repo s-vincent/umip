@@ -518,19 +518,31 @@ static int calculate_auth_data(const struct iovec *iov, int iovlen,
 
 #ifdef HAVE_LIBCRYPTO
 	unsigned int len = HMAC_SHA1_HASH_LEN;
-	HMAC_CTX ctx;
+	HMAC_CTX* ctx = NULL;
 	const EVP_MD *evp_md = EVP_sha1();
 
-	HMAC_CTX_init(&ctx);
-	HMAC_Init_ex(&ctx, key, HMAC_SHA1_KEY_SIZE, evp_md, NULL);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	ctx = malloc(sizeof(HMAC_CTX));
+	HMAC_CTX_init(ctx);
+#else
+	ctx = HMAC_CTX_new();
+#endif
 
-	HMAC_Update(&ctx, (uint8_t *)coa, sizeof(*coa));
-	HMAC_Update(&ctx, (uint8_t *)cn, sizeof(*coa));
+	HMAC_Init_ex(ctx, key, HMAC_SHA1_KEY_SIZE, evp_md, NULL);
+
+	HMAC_Update(ctx, (uint8_t *)coa, sizeof(*coa));
+	HMAC_Update(ctx, (uint8_t *)cn, sizeof(*coa));
 	for (i = 0; i < iovlen; i++) {
-		HMAC_Update(&ctx, (uint8_t *)iov[i].iov_base, iov[i].iov_len);
+		HMAC_Update(ctx, (uint8_t *)iov[i].iov_base, iov[i].iov_len);
 	}
-	HMAC_Final(&ctx, buf, &len);
+	HMAC_Final(ctx, buf, &len);
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	HMAC_CTX_cleanup(&ctx);
+	free(ctx);
+#else
+	HMAC_CTX_free(ctx);
+#endif
 #else
 	HMAC_SHA1_CTX ctx;
 

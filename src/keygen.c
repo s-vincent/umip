@@ -172,15 +172,26 @@ static void build_kgen_token(struct in6_addr *addr, uint8_t *nonce,
 	uint8_t tmp[20];
 #ifdef HAVE_LIBCRYPTO
 	unsigned int len = 20;
-	HMAC_CTX ctx;
+	HMAC_CTX* ctx = NULL;
 
-	HMAC_CTX_init(&ctx);
-	HMAC_Init_ex(&ctx, key_cn, sizeof(key_cn), EVP_sha1(), NULL);
-	HMAC_Update(&ctx, (unsigned char *)addr, sizeof(*addr));
-	HMAC_Update(&ctx, nonce, NONCE_LENGTH);
-	HMAC_Update(&ctx, &id, sizeof(id));
-	HMAC_Final(&ctx, tmp, &len);
-	HMAC_CTX_cleanup(&ctx);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	ctx = malloc(sizeof(HMAC_CTX));
+	HMAC_CTX_init(ctx);
+#else
+	ctx = HMAC_CTX_new();
+#endif
+
+	HMAC_Init_ex(ctx, key_cn, sizeof(key_cn), EVP_sha1(), NULL);
+	HMAC_Update(ctx, (unsigned char *)addr, sizeof(*addr));
+	HMAC_Update(ctx, nonce, NONCE_LENGTH);
+	HMAC_Update(ctx, &id, sizeof(id));
+	HMAC_Final(ctx, tmp, &len);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	HMAC_CTX_cleanup(ctx);
+	free(ctx);
+#else
+	HMAC_CTX_free(ctx);
+#endif
 #else
 	HMAC_SHA1_CTX ctx;
 
