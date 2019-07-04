@@ -56,7 +56,7 @@ int rtnl_open_byproto(struct rtnl_handle *rth, unsigned subscriptions,
 	int sndbuf = SO_SNDBUF_SIZE;
 	int rcvbuf = SO_RCVBUF_SIZE;
 
-	memset(rth, 0, sizeof(rth));
+	memset(rth, 0, sizeof(struct rtnl_handle));
 
 	rth->fd = socket(AF_NETLINK, SOCK_RAW, protocol);
 	if (rth->fd < 0) {

@@ -319,7 +319,7 @@ static int mn_send_bu_msg(struct bulentry *bule)
 	uint8_t *bind_key = NULL;
 	struct in6_addr_bundle addrs;
 
-	memset(iov, 0, IP6_MHOPT_MAX+1);
+	memset(iov, 0, sizeof(struct iovec) * (IP6_MHOPT_MAX+1));
 	bu = mh_create(&iov[iov_ind++], IP6_MH_TYPE_BU);
 	if (!bu)
 		return -ENOMEM;

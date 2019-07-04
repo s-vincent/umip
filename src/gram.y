@@ -837,7 +837,7 @@ prefixlistentry	: ADDR '/' prefixlen
 			p = malloc(sizeof(struct prefix_list_entry));
 			if (p == NULL) {
 				fprintf(stderr,
-					"%s: out of memory\n", __FUNCTION__);
+					"%s: out of memory\n", __func__);
 				return -1;
 			}
 			memset(p, 0, sizeof(struct prefix_list_entry));

@@ -18,14 +18,14 @@ static inline int debug_open(const char *path){ return 0; }
 static inline void debug_close(void){}
 static inline void debug_init(void){}
 #else
-#define dbg(...) dbgprint(__FUNCTION__, __VA_ARGS__)
+#define dbg(...) dbgprint(__func__, __VA_ARGS__)
 #define cdbg(...) dbgprint(NULL, __VA_ARGS__)
 #define dbg_buf(data, len, ...) \
-	debug_print_buffer(data, len, __FUNCTION__, __VA_ARGS__)
+	debug_print_buffer(data, len, __func__, __VA_ARGS__)
 #define dbg_func(arg, func) debug_print_func(arg, func)
 
-#define BUG(x) dbgprint("BUG", "%s %d %s\n", __FUNCTION__, __LINE__, x)
-#define TRACE dbgprint(__FUNCTION__, "%d\n", __LINE__)
+#define BUG(x) dbgprint("BUG", "%s %d %s\n", __func__, __LINE__, x)
+#define TRACE dbgprint(__func__, "%d\n", __LINE__)
 
 void dbgprint(const char *fname, const char *fmt, ...);
 
@@ -43,7 +43,7 @@ void debug_init(void);
 
 #else
 
-#define pthread_dbg(x) dbgprint(__FUNCTION__, "[%x] %s\n", pthread_self(), x)
+#define pthread_dbg(x) dbgprint(__func__, "[%x] %s\n", pthread_self(), x)
 
 #define pthread_mutex_lock(x)\
 do {\
